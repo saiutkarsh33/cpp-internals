@@ -11,7 +11,7 @@ private:
 
 public: 
 
-    // rule of 5 Sai: Need to have all 5 (or delete them)
+    // rule of 5 : Need to have all 5 (or delete them)
 
     // Default constructor
 
@@ -106,4 +106,3 @@ public:
 
 
 
-}
