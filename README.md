@@ -2,6 +2,7 @@ My own personal implementations of C++ internals
 
 Data Structures:
 Thread Safe Queue,
+Thread Safe List,
 HashMap,
 Vector
 
@@ -10,10 +11,7 @@ Shared Pointer,
 Unique Pointer
 
 In the works:
-Lock Free Queue,
-Lock Free Stack,
-Thread Safe Stack,
-Thread Safe List,
-String
+Michael Scott Queue,
+moodyLemons Queue
 
 I need to also add unit tests.
