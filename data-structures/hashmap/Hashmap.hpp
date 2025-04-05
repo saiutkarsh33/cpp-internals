@@ -6,6 +6,8 @@
 #include <type_traits>
 #include <utility>
 
+// Not thread safe
+
 template <typename K, typename V>
 class Hashmap {
 private:
@@ -23,13 +25,13 @@ public:
         using iterator_category = std::forward_iterator_tag;
         // the difference between 2 iterators; how many elements apart
         using difference_type = std::ptrdiff_t;
-        using pointer = std::conditional<IsConst, const value_type*, value_type*>::type;
-        using reference = std::conditional<IsConst, const value_type&, value_type&>::type;
+        using pointer = typename std::conditional<IsConst, const value_type*, value_type*>::type;
+        using reference = typename std::conditional<IsConst, const value_type&, value_type&>::type;
 
         // Bucket::iterator does not mean that bucket is a namespace here
         // iterator is a nested type inside C++'s std::list
 
-        Iterator(Bucket::iterator ptr, Bucket* bucketPtr, size_t currentBucket, size_t numOfBuckets):
+        Iterator(typename Bucket::iterator ptr, Bucket* bucketPtr, size_t currentBucket, size_t numOfBuckets):
                 mPtr(ptr), mBucketPtr(bucketPtr), currentBucket(currentBucket), numOfBuckets(numOfBuckets) {}
         // mPtr is current bucket
         // mBucketPtr is a pointer to the beginning of the array of buckets
@@ -40,7 +42,7 @@ public:
         pointer operator->() { return &(*mPtr); }
 
     
-        Bucket::iterator getBucketIterator() {
+        typename Bucket::iterator getBucketIterator() {
             return mPtr;
         }
         
@@ -100,7 +102,7 @@ public:
             mPtr = mBucketPtr[currentBucket].begin();
         }
 
-        Bucket::iterator mPtr;
+        typename Bucket::iterator mPtr;
         Bucket* mBucketPtr;
         size_t currentBucket;
         size_t numOfBuckets;
@@ -137,6 +139,8 @@ public:
         mSize(other.mSize), maxLoadFactor(other.maxLoadFactor) {
         mStore = other.mStore;
         other.mStore = nullptr;
+        other.mBucketCount = 0;
+        other.mSize = 0;
     }
 
     // returns value to a key
@@ -175,7 +179,7 @@ public:
             return { Iterator<false>{start, mStore, bucketIdx, mSize }, false };
         }
 
-        if (mSize / mBucketCount >= maxLoadFactor) {
+        if (static_cast<double>(mSize + 1) / mBucketCount >= maxLoadFactor) {
             rehash(mBucketCount * 2);
             bucketIdx = hashKey(value.first, mBucketCount);
         }
@@ -300,5 +304,5 @@ private:
     Bucket* mStore = nullptr;
     size_t mBucketCount = 0;
     size_t mSize = 0;
-    size_t maxLoadFactor = 0.7;
+    double maxLoadFactor = 0.7;
 };

@@ -6,12 +6,16 @@
 #include <initializer_list>
 #include <iterator>
 #include <stdexcept>
-#include <format>
 #include <type_traits>
 
 template <typename T>
 
 class Vector {
+private:
+    T* ptr;
+    size_t m_capacity;
+    size_t idx;
+public:
 
     // Default constructor
 
@@ -55,6 +59,8 @@ class Vector {
 
         Vector(Vector&& vec): ptr(vec.ptr), m_capacity(vec.m_capacity), idx(vec.idx) {
         vec.ptr = nullptr;
+        vec.m_capacity = 0;
+        vec.idx = 0;        
     }
 
     // copy assignment
@@ -171,9 +177,6 @@ class Vector {
         return ptr;
     }
     T& at(size_t pos) {
-        if (pos >= idx) {
-            throw std::out_of_range(std::format("pos %d is out of range", pos));
-        }
         return ptr[pos];
     }
 

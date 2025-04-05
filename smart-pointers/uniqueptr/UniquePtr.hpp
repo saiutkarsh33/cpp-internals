@@ -5,11 +5,8 @@
 template <typename T>
 class UniquePtr {
 
-// private because no one outside the class can access the raw pointer
-private:
-    T* ptr // this is the raw array
-
 public: 
+    T* ptr; // this is the raw array
 
     // rule of 5 : Need to have all 5 (or delete them)
 

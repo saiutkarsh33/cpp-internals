@@ -26,7 +26,7 @@ public:
         : ptr(other.ptr), ref_count(other.ref_count) {
         other.ptr = nullptr;
         // Set other's ref_count to a new counter of 0 to keep it valid.
-        other.ref_count = new size_t(0);
+        other.ref_count = new std::atomic<size_t>(0);
     }
 
     // Destructor: decrement the reference count and delete managed object if needed.
@@ -69,7 +69,7 @@ public:
             ptr = other.ptr;
             ref_count = other.ref_count;
             other.ptr = nullptr;
-            other.ref_count = new size_t(0);
+            other.ref_count = new std::atomic<size_t>(0);
         }
         return *this; // Return *this to allow chaining.
     }
