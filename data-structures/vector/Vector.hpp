@@ -181,8 +181,9 @@ public:
     }
 
     T& operator[](size_t pos) {
+        // can throw out of bounds exception instead actually
         if (pos >= idx) {
-            pos = 0;
+            throw std::out_of_range("Index out of range");
         }
 
         return ptr[pos];

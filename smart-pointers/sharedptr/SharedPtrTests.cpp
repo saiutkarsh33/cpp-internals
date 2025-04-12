@@ -1,5 +1,5 @@
 #include "gtest/gtest.h"
-#include "SharedPtr.hpp" // Make sure this path is correct for your SharedPtr implementation.
+#include "SharedPtr.hpp" 
 #include <string>
 
 // Test default constructor.

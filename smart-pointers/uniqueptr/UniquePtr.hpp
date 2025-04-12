@@ -4,9 +4,12 @@
 
 template <typename T>
 class UniquePtr {
+private:
+    T* ptr;
+
 
 public: 
-    T* ptr; // this is the raw array
+ // this is the raw array
 
     // rule of 5 : Need to have all 5 (or delete them)
 
