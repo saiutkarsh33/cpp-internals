@@ -9,7 +9,7 @@
 
 // i chose arbitrary number - should be a multiple of 64 to fit into cache line
 
-#define SSO_SIZE 128
+#define SSO_SIZE 127
 
 class String {
 private:
