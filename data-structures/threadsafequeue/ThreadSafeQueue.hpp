@@ -10,10 +10,26 @@ class ThreadSafeQueue {
 public:
     // default constructor
     ThreadSafeQueue() = default;
-    // no copy constructor, copying a queue w a mutex / conditional variable migjt pose an issue, copies might interefere with each other
-    ThreadSafeQueue(const ThreadSafeQueue&) = delete;
-    // cannot assign one thread safe queue to another
-    ThreadSafeQueue& operator=(const ThreadSafeQueue&) = delete;
+    
+    // Copy constructor
+    ThreadSafeQueue(const ThreadSafeQueue& other) {
+
+        std::lock_guard<std::mutex> lock(other.mtx);
+        q = other.q;
+        // The new instance gets a new, default-constructed mtx and cv
+    }
+
+    // Copy assignment operator
+    ThreadSafeQueue& operator=(const ThreadSafeQueue& other) {
+        if (this != &other) {
+            // Lock both mutexes using std::scoped_lock to avoid deadlocks.
+            // Note: the order in which mutexes are locked is managed by std::scoped_lock.
+            std::scoped_lock lock(mtx, other.mtx);
+            q = other.q;
+            // The synchronization primitives (mtx and cv) remain independent
+        }
+        return *this;
+    }
 
     // Move constructor
     ThreadSafeQueue(ThreadSafeQueue&& other) {
