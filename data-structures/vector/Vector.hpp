@@ -14,7 +14,8 @@ class Vector {
 private:
     T* ptr;
     size_t m_capacity;
-    size_t idx;
+    size_t idx; // this is the "current size"
+
 public:
 
     // Default constructor
