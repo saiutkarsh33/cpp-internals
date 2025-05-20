@@ -115,12 +115,70 @@ public:
     // Without perfect forwarding, if rvalue was passed, it would be transformed to an lvalue args and then copied over, unnecessary copies!
 
     template <typename... U>
+    requires std::constructible_from<T, U...>
     T& emplace_back(U&&... args) {
         if (idx == m_capacity) {
             resize(m_capacity == 0 ? 1 : m_capacity * 2);
         }
         new (&ptr[idx++]) T(std::forward<U>(args)...);
         return ptr[idx - 1];
+    }
+
+    template<typename... U>
+    requires std::constructible_from<T, U...>
+    T& emplace_insert(size_t pos, U&&... args) {
+        if (pos > idx) 
+            throw std::out_of_range("Vector::emplace_insert: position out of range");
+
+    // 1) grow if needed
+        if (idx == m_capacity) 
+            resize(m_capacity == 0 ? 1 : m_capacity * 2);
+
+    // 2) shift existing elements [pos..idx-1] → [pos+1..idx]
+        for (size_t i = idx; i > pos; --i) {
+            // backwards!!!
+            new (&ptr[i]) T(std::move(ptr[i - 1]));
+            ptr[i - 1].~T();
+        }
+
+    // 3) in‐place construct the new T at position pos
+        new (&ptr[pos]) T(std::forward<U>(args)...);
+
+    // 4) update size & return
+        ++idx;
+        return ptr[pos];
+    }   
+
+    // insert an initializer_list of T’s at position pos
+    void insert(size_t pos, std::initializer_list<T> il) {
+        if (pos > idx)
+        throw std::out_of_range("Vector::insert: position out of range");
+
+        size_t count = il.size();
+        if (count == 0) return;
+
+        // 1) grow once for all `count` new elements
+        if (idx + count > m_capacity) {
+        // double-or-enough strategy
+            size_t newCap = std::max(m_capacity ? m_capacity * 2 : 1, idx + count);
+            resize(newCap);
+        }
+
+        // 2) shift old tail [pos..idx-1] → [pos+count..idx+count-1]
+        for (size_t i = idx; i > pos; --i) {
+            new (&ptr[i + count - 1]) T(std::move(ptr[i - 1]));
+            ptr[i - 1].~T();
+        }
+
+        // 3) copy-construct the new elements from the list
+        size_t i = 0;
+        for (auto& x : il) {
+            new (&ptr[pos + i]) T(x);
+            ++i;
+        }
+
+        // 4) update size
+        idx += count;
     }
 
     void resize(size_t count) {
