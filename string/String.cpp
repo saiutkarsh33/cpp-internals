@@ -75,6 +75,29 @@ String::String(String&& other) noexcept : len(other.len), sso(other.sso) {
     other.smallBuffer[0] = '\0';
 }
 
+// string view is just 2 words: char pointer and size, and has lots of util methods
+String::String(std::string_view sv) : len(sv.size()), sso(len <= SSO_SIZE) {
+
+    if (sso) {
+        // Copy into small buffer
+        ptr = smallBuffer;
+        if (len > 0) {
+            std::memcpy(ptr, sv.data(), len);
+        }
+        ptr[len] = '\0';
+    } else {
+        // Heap allocation path
+        ptr = new char[len + 1];
+        std::memcpy(ptr, sv.data(), len);
+        ptr[len] = '\0';
+    }
+}
+
+
+
+String::String(const std::string& str)
+    : String(std::string_view(str)) {}
+
 
 String& String::operator=(const String& other) {
     if (this != &other) {
@@ -109,6 +132,8 @@ String& String::operator=(String&& other) noexcept {
     }
     return *this;
 }
+
+
 
 void String::swap(String& other) {
 
@@ -201,10 +226,28 @@ String& String::operator+=(const char* s) {
 
 char& String::operator[](size_t pos) {
     // actually i should check bounds?
-
     // [] on a pointer essentially does pointer arithmetic
     return ptr[pos];
 }
+
+
+bool String::contains(std::string_view needle) const {
+    if (needle.size() > len) {
+        return false;
+    }
+    return std::string_view(ptr, len).find(needle) != std::string_view::npos;
+}
+
+//its just that std::string doesent have a contains fn like string view ; to implement it is a leetcode problem
+bool String::contains(std::string needle) const {
+    return contains(std::string_view(needle));
+}
+
+
+bool String::contains(const String& needle) const {
+    return contains(std::string_view(needle.ptr, needle.len));
+}
+
 
 size_t String::size() const {
     return len;
@@ -223,6 +266,43 @@ void String::clear() {
     ptr = smallBuffer;
 // In C-style strings, the string is defined as ending at the first null terminator ('\0'). When you set smallBuffer[0] = '\0', you're indicating that there are zero characters before the terminator, making it an empty string.
     smallBuffer[0] = '\0';
+}
+
+bool String::starts_with_digit() const {
+    return len > 0 && ptr[0] >= '0' && ptr[0] <= '9';
+}
+
+std::string_view String::first_token(char delim) const {
+    for (size_t i = 0; i < len; ++i) {
+        if (ptr[i] == delim) return std::string_view(ptr, i);
+    }
+    return std::string_view(ptr, len);
+}
+
+String String::first_token_copy(char delim) const {
+    return String(first_token(delim));
+}
+
+bool String::starts_with(std::string_view prefix) const {
+    return len >= prefix.size() &&
+           std::memcmp(ptr, prefix.data(), prefix.size()) == 0;
+}
+
+bool String::starts_with(const String& prefix) const {
+    return starts_with(std::string_view(prefix.ptr, prefix.len));
+}
+
+bool String::starts_with(const std::string& prefix) const {
+    return starts_with(std::string_view(prefix));
+}
+
+std::string_view String::drop_prefix(size_t n) const {
+    if (n >= len) return {};
+    return std::string_view(ptr + n, len - n);
+}
+
+String String::drop_prefix_copy(size_t n) const {
+    return String(drop_prefix(n));
 }
 
 bool String::operator==(const String& other) const {

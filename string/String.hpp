@@ -4,7 +4,8 @@
 #include <iterator>
 #include <string>
 #include <iostream>
-#include <cstring>   
+#include <cstring> 
+#include <string_view>   
 
 
 // i chose arbitrary number - should be a multiple of 64 to fit into cache line
@@ -59,6 +60,12 @@ public:
     // Default constructor (creates an empty string).
     String();
 
+    // Below, there is const in the arguments because
+    // const in general accepts const and non const
+    // but non const cannot accept const
+    // You cannot modify the non const string passed into this const argument ctor
+    // but doesent matter cause u donmt even wanna modify it
+
     // Construct from C-style string.
     String(const char* s);
 
@@ -70,6 +77,23 @@ public:
 
     // Move constructor.
     String(String&& other) noexcept;
+
+    String(const std::string&);
+    
+    // Create a new string with the same contents as the sv string
+    // You don't need "explicit" for this use case becase theres a char* ctor already
+    // so u wont have a situation where char* is implictly converted to string view
+    String(std::string_view sv);
+
+    std::string_view first_token(char delim) const;
+    String first_token_copy(char delim) const;
+
+    bool starts_with(std::string_view prefix) const;
+    bool starts_with(const String& prefix) const;
+    bool starts_with(const std::string& prefix) const;
+
+    std::string_view drop_prefix(size_t n) const;
+    String drop_prefix_copy(size_t n) const;
 
 
     String& operator=(const String& other);
@@ -93,13 +117,21 @@ public:
     // Const element access.
     const char& operator[](size_t pos) const;
     // when the string is const
+    
+    // Return true if needle is a substring of this String
+    // (memcmp(haystack + i, needle, needle_len) == 0) sliding window under the hood.
 
+    bool contains(std::string_view needle) const;
+    bool contains(std::string needle) const;
+
+    bool contains(const String& needle) const;
     // Return the size (length) of the string.
     size_t size() const;
 
     // Return a C-style null-terminated string.
     const char* c_str() const;
 
+    bool starts_with_digit() const;
 
     // Clear the contents of the string.
     void clear();
@@ -111,6 +143,7 @@ public:
     Iterator end();
     const Iterator begin() const;
     const Iterator end() const;
+
 
 
 
