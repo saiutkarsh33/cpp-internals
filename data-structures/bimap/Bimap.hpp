@@ -1,3 +1,5 @@
+#include <unordered_map>
+#include <cstddef>
 template<typename K, typename V>
 class UnorderedBimap {
 public:
@@ -7,12 +9,10 @@ public:
         if (keyToVal.find(key) !=  keyToVal.end() || valToKey.find(value) !=  valToKey.end()) {
             return false;
         }
-
         keyToVal[key] = value;
         valToKey[value] = key;
         return true;
     }
-
     // Removes by key or by value.
     // Returns true if something was erased.
     bool erase_by_key(const K& key) {
@@ -42,9 +42,6 @@ public:
         // can't use [] operator on a const method
         
         return &it->second;        
-
-
-
     }
     // find_by_value and erase_by_value are trivial exercises
 
