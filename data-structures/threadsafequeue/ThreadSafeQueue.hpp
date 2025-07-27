@@ -24,6 +24,19 @@ public:
         if (this != &other) {
             // Lock both mutexes using std::scoped_lock to avoid deadlocks.
             // Note: the order in which mutexes are locked is managed by std::scoped_lock.
+            // When you write this:
+            // naive, dangerous!
+            // std::lock_guard<std::mutex> lk1(mtx);
+            // std::lock_guard<std::mutex> lk2(other.mtx);
+            // q = other.q;
+            // you’re manually grabbing this->mtx and then other.mtx. That will work as long as nobody else ever locks them in the opposite order. But imagine two threads doing:
+
+            // Thread A
+            // thisA = this;   // copy-assign A = B
+            // thisA = otherB; // locks A.mtx, then B.mtx
+
+            // Thread B
+            // thisB = otherA; // locks B.mtx, then A.mtx
             std::scoped_lock lock(mtx, other.mtx);
             q = other.q;
             // The synchronization primitives (mtx and cv) remain independent
@@ -70,10 +83,23 @@ public:
     void push(T&& value) {
         {
             std::lock_guard<std::mutex> lock(mtx);
-            // converts the rvalue to an xvalue, enabling the queue to "steal" /move the internal resources of value instead of copying them
+            // Type of value: T&& (an rvalue reference to T)
+
+            // Value‑category of the expression value: lvalue
+
+            // That’s why you still need to write std::move(value) (or static_cast<T&&>(value)) to turn that lvalue‑named variable into an xvalue and invoke your move‑ctor
             q.push(std::move(value));
         }
         cv.notify_one();
+    }
+
+    template<typename U>
+    void push(U&& u) {
+    {
+        std::lock_guard lock(mtx);
+        q.push(std::forward<U>(u));  // forwards as lvalue or rvalue as appropriate
+    }
+    cv.notify_one();
     }
 
     // Try to pop an item; returns false if the queue is empty.

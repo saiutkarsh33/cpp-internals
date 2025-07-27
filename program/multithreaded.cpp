@@ -10,7 +10,6 @@ void say_hello(int x) {
     std::cout << "Hello from thread!" << std::this_thread::get_id()  << std::endl;
 }
 
-
 int main() {
     
     std::thread t2(say_hello,2);

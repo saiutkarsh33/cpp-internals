@@ -92,9 +92,7 @@ String::String(std::string_view sv) : len(sv.size()), sso(len <= SSO_SIZE) {
         ptr[len] = '\0';
     }
 }
-
-
-
+// delegating ctor
 String::String(const std::string& str)
     : String(std::string_view(str)) {}
 
