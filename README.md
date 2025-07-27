@@ -1,6 +1,6 @@
 # C++ Internals — Custom Implementations by Sai Utkarsh
 
-Welcome to my personal collection of C++ internals, where I’ve re-implemented fundamental data structures and utilities from scratch. Everything here is tested using `gtest`, with a strong focus on thread safety, memory management, and custom iterators.
+Welcome to my personal collection of C++ internals, where I’ve re-implemented fundamental data structures and utilities from scratch. Almost everything here is tested using `gtest`, with a strong focus on thread safety, memory management, and custom iterators.
 
 I’ve also documented key learnings and insights on my [tech blog](https://saiutkarsh.netlify.app).
 
