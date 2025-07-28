@@ -77,6 +77,7 @@ I’ve also documented key learnings and insights on my [tech blog](https://saiu
 ## Multithreaded Program
 
 - A simple multithreaded program to demonstrate concurrency utilities in action.
+- A script (not complete - need to use a proper Reflections library API) that serialises and deserialises a struct into binary and back. Handles nested structs. Something like protobuf.
 
 ---
 
